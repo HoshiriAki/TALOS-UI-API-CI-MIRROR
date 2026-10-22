@@ -1,0 +1,33 @@
+{
+  "name": "@talos/ui-framework-api",
+  "version": "0.1.0-dev.0",
+  "private": true,
+  "type": "module",
+  "description": "Independent renderer-neutral TALOS semantic translator API foundation",
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@10.33.4",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "build": "tsc -p tsconfig.json",
+    "test": "pnpm run build && node --test tests/*.test.mjs",
+    "check": "pnpm run typecheck && pnpm run test"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./adapters/fantastic-admin": {
+      "types": "./dist/adapters/fantastic-admin.d.ts",
+      "import": "./dist/adapters/fantastic-admin.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "typescript": "~5.7.3"
+  }
+}

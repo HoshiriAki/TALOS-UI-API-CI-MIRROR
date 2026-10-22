@@ -1,0 +1,54 @@
+name: Public CI qualification mirror
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# This workflow is for a clean-history, source-only PUBLIC CI mirror.
+# It must not fetch any private repository, credentials, FA commercial code
+# or TALOS tenant data. PR builds are intentionally not enabled.
+permissions:
+  contents: read
+
+concurrency:
+  group: public-ci-qualification-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: TypeScript API contract verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout public source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.3'
+
+      - name: Use project pnpm version
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.33.4 --activate
+          node --version
+          pnpm --version
+
+      - name: Resolve source-only dependencies
+        run: pnpm install --no-frozen-lockfile --ignore-scripts
+
+      - name: Verify exact mirror commit
+        run: |
+          git rev-parse HEAD
+          sha256sum pnpm-lock.yaml
+          pnpm typecheck
+          pnpm test
+
+      - name: Qualification scope
+        run: |
+          echo 'Public mirror PASS means the exported source subset passed here.'
+          echo 'It does not prove TALOS backend authorization, FA integration or full private-repository release qualification.'
