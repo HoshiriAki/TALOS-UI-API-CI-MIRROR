@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { projectTable, toTableViewPort } from '../dist/index.js'
+import { projectTable, toTableViewPort, TranslatorError } from '../dist/index.js'
 import { toFaTableReadPort, tableViewToFaPort } from '../dist/adapters/fantastic-admin.js'
 
 const definition = {
@@ -59,7 +59,7 @@ test('FA read adapter keeps raw business field names out of accessor paths', () 
 test('FA adapter rejects a projection that claims write access', () => {
   const projected = projectTable(definition, [], pagination, 'e')
   assert.throws(() => toFaTableReadPort({ ...projected, access: 'command' }),
-    /read-only table projections/)
+    error => error instanceof TranslatorError && error.code === 'INVALID_SOURCE')
 })
 
 
